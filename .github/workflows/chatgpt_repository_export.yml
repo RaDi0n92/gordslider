@@ -1,0 +1,36 @@
+name: ChatGPT Repository Export
+
+on:
+  pull_request:
+    branches:
+      - main
+
+permissions:
+  contents: read
+
+jobs:
+  export:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+      - name: Create exact original archive
+        shell: bash
+        run: |
+          set -euo pipefail
+          COMMIT="055e7cecb0d187b9babaca8f6338dc2a2e4d5479"
+          ARCHIVE="RaDi0n92_gordslider_${COMMIT}.zip"
+          git archive --format=zip --output="$ARCHIVE" "$COMMIT"
+          sha256sum "$ARCHIVE" > "$ARCHIVE.sha256"
+          git show -s --format=fuller "$COMMIT" > ORIGINAL_COMMIT.txt
+      - uses: actions/upload-artifact@v4
+        with:
+          name: gordslider-exact-original-055e7ce
+          path: |
+            RaDi0n92_gordslider_055e7cecb0d187b9babaca8f6338dc2a2e4d5479.zip
+            RaDi0n92_gordslider_055e7cecb0d187b9babaca8f6338dc2a2e4d5479.zip.sha256
+            ORIGINAL_COMMIT.txt
+          compression-level: 0
+          if-no-files-found: error
+          retention-days: 1
